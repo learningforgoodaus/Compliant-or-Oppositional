@@ -15,14 +15,17 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 680px; /* INCREASED height to 680px for breathing room */
-            width: 600px; /* Constrained width */
-            overflow: hidden;
+            height: 680px; /* Maintains fixed height */
+            /* Removed fixed width: 600px */
+            width: 100%; /* Take full available width */
+            overflow-x: hidden; /* Prevent horizontal scroll */
             margin: 0;
+            padding: 1rem;
         }
 
         .container {
             width: 100%;
+            max-width: 800px; /* Limits max width for readability */
             height: 100%;
             padding: 1rem;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -33,8 +36,7 @@
         }
 
         .instruction-box {
-            /* Fix for clipping the background */
-            min-height: 120px; /* Explicit minimum height to contain the text */
+            min-height: 120px; 
             padding: 8px;
             border-radius: 6px;
             border: 1px solid #C6B4D9;
@@ -63,7 +65,6 @@
             padding: 0.75rem;
             border-radius: 8px;
             margin: 0.5rem;
-            /* Removed flex-grow to ensure the container uses only necessary space */
             flex-grow: 1; 
             display: flex;
             flex-direction: column;
@@ -160,4 +161,235 @@
             // Oppositional Scenarios (Resistant, defiant, withdrawn)
             { text: "Moody or short-tempered", category: "Oppositional" },
             { text: "Seems difficult or negative with others", category: "Oppositional" }, 
-            { text: "Avoids
+            { text: "Avoids eye contact or withdraws", category: "Oppositional" },
+        ];
+
+        let itemsCorrect = 0;
+        let itemsTotal = data.length;
+
+        const dragPool = document.getElementById('drag-pool');
+        const dropTargets = document.getElementById('drop-targets');
+        const checkButton = document.getElementById('check-button');
+        const feedbackDiv = document.getElementById('feedback');
+
+        // --- Setup Functions ---
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createDraggableItem(itemData) {
+            const item = document.createElement('div');
+            item.className = 'draggable-item shadow-md';
+            item.textContent = itemData.text;
+            item.draggable = true;
+            item.dataset.category = itemData.category;
+            item.id = 'item-' + Math.random().toString(36).substring(2, 9);
+            
+            // Add drag events
+            item.addEventListener('dragstart', handleDragStart);
+            
+            // Add touch events for mobile support
+            item.addEventListener('touchstart', handleTouchStart);
+            item.addEventListener('touchmove', handleTouchMove);
+            item.addEventListener('touchend', handleTouchEnd);
+
+            return item;
+        }
+
+        function init() {
+            // Clear existing elements
+            dragPool.innerHTML = '';
+            
+            // Generate items and add to pool
+            shuffle(data).forEach(itemData => {
+                dragPool.appendChild(createDraggableItem(itemData));
+            });
+
+            // Add drop events to targets
+            Array.from(dropTargets.children).forEach(target => {
+                target.addEventListener('dragover', handleDragOver);
+                target.addEventListener('dragleave', handleDragLeave);
+                target.addEventListener('drop', handleDrop);
+            });
+            
+            // Setup check button
+            checkButton.addEventListener('click', checkAnswers);
+            checkButton.textContent = "Check Answers";
+            feedbackDiv.textContent = "";
+        }
+        
+        // --- Drag & Drop Handlers ---
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+            e.target.classList.add('opacity-50');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault(); 
+            e.target.closest('.drop-target').classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.target.closest('.drop-target').classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const target = e.target.closest('.drop-target');
+            const itemId = e.dataTransfer.getData('text/plain');
+            const draggable = document.getElementById(itemId);
+
+            if (target && draggable) {
+                // Remove drag-over class
+                target.classList.remove('drag-over');
+                
+                // Append the draggable item to the drop target
+                target.appendChild(draggable);
+                
+                // Update position for visual consistency after drop
+                draggable.classList.remove('opacity-50');
+            }
+        }
+        
+        // --- Touch Handlers (Simple implementation for general movement) ---
+        
+        let currentDraggable = null;
+        let initialX, initialY, currentX, currentY;
+        
+        function handleTouchStart(e) {
+            currentDraggable = e.target.closest('.draggable-item');
+            if (!currentDraggable) return;
+
+            e.preventDefault(); 
+            const touch = e.touches[0];
+            initialX = touch.clientX;
+            initialY = touch.clientY;
+            
+            // Prepare for movement
+            currentDraggable.style.position = 'absolute';
+            currentDraggable.style.zIndex = 1000;
+            
+            // Set initial translate for smooth movement
+            const rect = currentDraggable.getBoundingClientRect();
+            currentDraggable.style.left = rect.left + 'px';
+            currentDraggable.style.top = rect.top + 'px';
+        }
+
+        function handleTouchMove(e) {
+            if (!currentDraggable) return;
+
+            e.preventDefault();
+            const touch = e.touches[0];
+            currentX = touch.clientX;
+            currentY = touch.clientY;
+
+            const deltaX = currentX - initialX;
+            const deltaY = currentY - initialY;
+            
+            // Move the element by adjusting its position based on the initial touch point
+            currentDraggable.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+        }
+        
+        function handleTouchEnd(e) {
+            if (!currentDraggable) return;
+
+            // Check if element was dropped over a target
+            const target = document.elementFromPoint(currentX, currentY);
+            const dropTarget = target ? target.closest('.drop-target') : null;
+
+            if (dropTarget) {
+                dropTarget.appendChild(currentDraggable);
+            }
+            
+            // Clean up styles
+            currentDraggable.style.position = 'static'; 
+            currentDraggable.style.zIndex = 'auto';
+            currentDraggable.style.transform = 'none';
+            currentDraggable.style.left = 'auto';
+            currentDraggable.style.top = 'auto';
+            
+            currentDraggable = null;
+        }
+
+
+        // --- Check and Reset ---
+
+        function checkAnswers() {
+            itemsCorrect = 0;
+            let allDropped = true;
+
+            // Loop through all drop targets
+            Array.from(dropTargets.children).forEach(target => {
+                const targetCategory = target.dataset.category;
+                
+                // Loop through children (draggable items) inside the target
+                Array.from(target.children).forEach(child => {
+                    // Check if the child is a draggable item, not the title
+                    if (child.classList.contains('draggable-item')) {
+                        const itemCategory = child.dataset.category;
+                        
+                        // Remove previous feedback classes
+                        child.classList.remove('correct', 'incorrect');
+
+                        if (itemCategory === targetCategory) {
+                            child.classList.add('correct');
+                            itemsCorrect++;
+                        } else {
+                            child.classList.add('incorrect');
+                        }
+                    }
+                });
+
+                // Check if any item remains in the drag pool
+                if (dragPool.children.length > 0) {
+                    allDropped = false;
+                }
+            });
+            
+            // Final Feedback
+            if (!allDropped && itemsCorrect < itemsTotal) {
+                 feedbackDiv.innerHTML = `<span class="text-red-600">Please drag all items to a category before checking.</span>`;
+            } else if (itemsCorrect === itemsTotal) {
+                feedbackDiv.innerHTML = `<span class="text-green-600">Fantastic! All ${itemsTotal} signs correctly identified.</span>`;
+                checkButton.textContent = "Try Again";
+                checkButton.removeEventListener('click', checkAnswers);
+                checkButton.addEventListener('click', resetActivity);
+
+            } else {
+                feedbackDiv.innerHTML = `<span class="text-yellow-600">You got ${itemsCorrect} out of ${itemsTotal} correct. Keep practising!</span>`;
+                checkButton.textContent = "Try Again";
+                checkButton.removeEventListener('click', checkAnswers);
+                checkButton.addEventListener('click', resetActivity);
+            }
+        }
+        
+        function resetActivity() {
+             // Reset items to pool
+             const items = document.querySelectorAll('.draggable-item');
+             items.forEach(item => {
+                 item.classList.remove('correct', 'incorrect');
+                 dragPool.appendChild(item);
+             });
+             
+             // Re-enable check button
+             checkButton.textContent = "Check Answers";
+             checkButton.removeEventListener('click', resetActivity);
+             checkButton.addEventListener('click', checkAnswers);
+             feedbackDiv.textContent = "";
+             itemsCorrect = 0;
+
+             // Re-shuffle the cards in the pool visually
+             init();
+        }
+
+        // Initialize the activity when the page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
