@@ -3,292 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compliant or Oppositional Activity</title>
+    <title>The Power and Control Wheel Activity</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F2F2F2;
+            background-color: #F6F5F8;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            width: 100%;
-            overflow-x: hidden;
             margin: 0;
-            padding: 1rem;
+            overflow-x: hidden;
         }
 
-        .container {
+        .main-header {
+            position: fixed;
+            top: 0;
             width: 100%;
-            max-width: 800px;
-            background-color: #FFF;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .instruction-box {
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #C6B4D9;
-            background-color: #F8F6FA;
-            margin-bottom: 20px;
-        }
-
-        /* --- DESKTOP DRAG & DROP STYLES --- */
-        .draggable-item {
-            cursor: grab;
-            padding: 0.5rem 1rem;
-            margin: 0.25rem;
-            background-color: #C6B4D9;
-            color: #413659;
-            border-radius: 6px;
-            font-weight: 600;
+            padding: 1.5rem 0 1rem 0;
             text-align: center;
-            transition: transform 0.1s, background-color 0.2s;
-            touch-action: none;
-        }
-
-        .drop-target {
-            background-color: #413659;
-            color: #F2F2F2;
-            padding: 1rem;
-            border-radius: 8px;
-            min-height: 150px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 3px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .drop-target-title {
+            font-size: 1.875rem;
             font-weight: 700;
-            color: #C6B4D9;
-            margin-bottom: 10px;
+            color: #413659;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            z-index: 100;
         }
 
-        .drag-over { border: 3px dashed #C6B4D9; background-color: #513873; }
-        .correct { background-color: #d1fae5 !important; border: 2px solid #059669 !important; pointer-events: none; }
-        .incorrect-flash { background-color: #fee2e2 !important; border: 2px solid #ef4444 !important; }
-
-        /* --- MOBILE SWIPE STYLES --- */
-        #mobile-swipe-interface {
-            display: none; /* Hidden on PC */
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .swipe-labels {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            padding: 10px 0;
-            color: #413659; /* Dark text */
-            font-weight: 800;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-        }
-
-        #card-stack {
+        /* PC CONTAINER - Fixed 800px */
+        .learning-activity-container {
             position: relative;
-            height: 250px;
-            width: 100%;
-            max-width: 320px;
-            margin: 20px auto;
+            width: 800px;
+            height: 800px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 60px;
         }
 
-        .swipe-card {
+        .large-circle {
+            width: 400px;
+            height: 400px;
+            background-color: #C6B4D9;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.5s ease-in-out;
             position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #413659;
+            line-height: 1.6;
+            box-sizing: border-box;
+            border: 5px solid #9C7F9D;
+            z-index: 10;
+        }
+
+        .large-circle-content {
             width: 100%;
             height: 100%;
-            background: #C6B4D9;
-            color: #413659;
-            border-radius: 12px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
             text-align: center;
-            padding: 20px;
-            font-weight: 700;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            touch-action: none;
-            transition: transform 0.1s ease, background-color 0.3s;
         }
 
-        /* Pale Feedback Classes */
-        .pale-green { background-color: #d1fae5 !important; }
-        .pale-red { background-color: #fee2e2 !important; }
+        .large-circle-content h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 15px; }
+        .large-circle-content p { font-size: 1.05rem; font-weight: 500; margin: 0; }
 
-        /* --- RESPONSIVE LOGIC --- */
+        .small-circle {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: #513873;
+            color: #F6F5F8;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.7s ease-in-out, background-color 0.3s, color 0.3s;
+            z-index: 20;
+            box-sizing: border-box;
+        }
+
+        .small-circle.active {
+            background-color: #C6B4D9;
+            color: #513873;
+            border: 4px solid #413659;
+        }
+
+        /* MOBILE OVERRIDES */
         @media (max-width: 768px) {
-            #desktop-interface { display: none; }
-            #mobile-swipe-interface { display: flex; }
+            body { align-items: flex-start; padding-top: 100px; overflow-y: auto; }
+            .main-header { font-size: 1.2rem; }
+            
+            .learning-activity-container {
+                width: 100vw;
+                height: 150vw;
+                margin-top: 20px;
+            }
+
+            .large-circle {
+                width: 80vw;
+                height: 80vw;
+                padding: 20px;
+            }
+
+            .large-circle-content h2 { font-size: 1rem; margin-bottom: 8px; }
+            .large-circle-content p { font-size: 0.8rem; line-height: 1.4; padding: 0 5px; }
+
+            .circle-title { display: none; }
+            .circle-number { font-size: 1.5rem !important; font-weight: 700; }
+
+            .small-circle {
+                width: 15vw;
+                height: 15vw;
+                transition: background-color 0.3s;
+            }
+
+            .small-circle.active {
+                transform: none !important;
+                background-color: #C6B4D9;
+                color: #513873;
+            }
         }
     </style>
 </head>
 <body>
+    <header class="main-header">Tactics used to gain power and control</header>
 
-    <div class="container">
-        <h2 class="text-xl font-bold text-[#513873] text-center mb-2">Compliant or Oppositional Responses</h2>
-        
-        <div class="instruction-box text-sm text-[#413659]">
-            <strong>Compliant:</strong> Obedient or eager to please to avoid punishment.<br>
-            <strong>Oppositional:</strong> Moody, withdrawn, or hostile due to trauma stress.
-        </div>
-
-        <div id="desktop-interface">
-            <div id="drop-targets" class="flex gap-4 mb-6">
-                <div class="drop-target" data-category="Oppositional">
-                    <div class="drop-target-title">Oppositional</div>
-                </div>
-                <div class="drop-target" data-category="Compliant">
-                    <div class="drop-target-title">Compliant</div>
-                </div>
-            </div>
-            <div id="drag-pool" class="flex flex-wrap justify-center p-4 bg-[#F2F2F2] rounded-lg min-height-[150px]"></div>
-            <div class="text-center mt-6">
-                <button id="check-btn" class="px-8 py-2 bg-[#513873] text-white font-bold rounded-lg hover:bg-[#413659]">Check Answers</button>
+    <div class="learning-activity-container">
+        <div id="large-circle" class="large-circle">
+            <div class="large-circle-content">
+                <h2 id="large-circle-title"></h2>
+                <p id="large-circle-text"></p>
             </div>
         </div>
-
-        <div id="mobile-swipe-interface">
-            <div class="swipe-labels">
-                <span>← OPPOSITIONAL</span>
-                <span>COMPLIANT →</span>
-            </div>
-            <div id="card-stack"></div>
-            <p class="text-xs text-center text-gray-500 italic">Swipe the card to the correct category</p>
-        </div>
-
-        <div id="feedback" class="mt-4 text-center font-bold text-lg"></div>
+        <div id="small-circles-wrapper"></div>
     </div>
 
     <script>
-        const data = [
-            { text: "Overly eager to please", category: "Compliant" },
-            { text: "Quickly leaves when partner texts", category: "Compliant" },
-            { text: "Gives in to demands easily", category: "Compliant" },
-            { text: "Moody or short-tempered", category: "Oppositional" },
-            { text: "Seems difficult or negative with others", category: "Oppositional" }, 
-            { text: "Avoids eye contact or withdraws", category: "Oppositional" }
+        const sectionsData = [
+            { id: 'coercion', title: 'Using Coercion & Threats', content: 'Making and/or carrying out threats to hurt them, threatening to leave them, to commit suicide, or to report them to welfare, forcing them to drop charges, or making them do illegal things.' },
+            { id: 'intimidation', title: 'Using Intimidation', content: 'Making them scared by using looks, actions, or gestures, smashing things, destroying their property, abusing pets, or showing weapons.' },
+            { id: 'emotional', title: 'Using Emotional Abuse', content: 'Putting them down, making them feel bad about themselves, calling them names, making them think they\'re crazy, playing mind games, humiliating them, or making them feel guilty.' },
+            { id: 'isolation', title: 'Using Isolation', content: 'Controlling what they do, who they see and talks to, what they read, or where they go, limiting their involvement with others, or using jealousy to excuse these actions.' },
+            { id: 'minimize', title: 'Minimising Denying & Blaming', content: 'Making light of the abuse and not taking their worries seriously, saying the abuse didn\'t happen, shifting responsibility for abusive behaviour, or saying they caused it.' },
+            { id: 'children', title: 'Using Children', content: 'Making them feel guilty about the children, using the children to pass on messages, using visitation to harass them, or threatening to take the children away.' },
+            { id: 'privilege', title: 'Using Male Privilege', content: 'Treating them like a servant, making all the big decisions, acting like the master of the house, or defining what gender roles should be.' },
+            { id: 'economic', title: 'Using Economic Abuse', content: 'Stopping them from getting or keeping a job, making them ask for money, giving them an allowance, taking their money, or not letting them know about or access family income.' }
         ];
 
-        function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+        const introData = { title: 'POWER AND CONTROL', content: 'Select the outer circles to reveal information.' };
+        const container = document.querySelector('.learning-activity-container');
+        let activeCircleId = null;
 
-        // --- PC LOGIC ---
-        function initPC() {
-            const pool = document.getElementById('drag-pool');
-            pool.innerHTML = '';
-            shuffle([...data]).forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'draggable-item shadow-sm';
-                el.textContent = item.text;
-                el.draggable = true;
-                el.dataset.category = item.category;
-                el.id = 'id-' + Math.random().toString(36).substr(2, 5);
-                el.addEventListener('dragstart', e => e.dataTransfer.setData('text', e.target.id));
-                pool.appendChild(el);
-            });
+        function render() {
+            const isMobile = window.innerWidth <= 768;
+            const centerX = container.offsetWidth / 2;
+            const centerY = container.offsetHeight / 2;
+            const activeIndex = sectionsData.findIndex(s => s.id === activeCircleId);
 
-            document.querySelectorAll('.drop-target').forEach(target => {
-                target.addEventListener('dragover', e => { e.preventDefault(); target.classList.add('drag-over'); });
-                target.addEventListener('dragleave', () => target.classList.remove('drag-over'));
-                target.addEventListener('drop', e => {
-                    e.preventDefault();
-                    const id = e.dataTransfer.getData('text');
-                    target.classList.remove('drag-over');
-                    target.appendChild(document.getElementById(id));
-                });
-            });
-        }
+            sectionsData.forEach((section, index) => {
+                const el = document.getElementById(`circle-${section.id}`);
+                const isActive = section.id === activeCircleId;
+                let x, y, size;
 
-        document.getElementById('check-btn').addEventListener('click', function() {
-            let correct = 0;
-            document.querySelectorAll('.draggable-item').forEach(item => {
-                const parentCat = item.parentElement.dataset.category;
-                if (parentCat === item.dataset.category) {
-                    item.classList.add('correct');
-                    correct++;
-                } else if (parentCat) {
-                    item.classList.add('incorrect-flash');
-                    setTimeout(() => {
-                        item.classList.remove('incorrect-flash');
-                        document.getElementById('drag-pool').appendChild(item);
-                    }, 800);
-                }
-            });
-            if (correct === data.length) document.getElementById('feedback').innerHTML = "<span class='text-green-600'>Perfect! All correct.</span>";
-        });
-
-        // --- MOBILE SWIPE LOGIC ---
-        let startX = 0;
-        let currentCard = null;
-
-        function initMobile() {
-            const stack = document.getElementById('card-stack');
-            stack.innerHTML = '';
-            shuffle([...data]).forEach((item, i) => {
-                const card = document.createElement('div');
-                card.className = 'swipe-card';
-                card.textContent = item.text;
-                card.dataset.category = item.category;
-                card.style.zIndex = data.length - i;
-                
-                card.addEventListener('touchstart', e => {
-                    startX = e.touches[0].clientX;
-                    currentCard = card;
-                    card.style.transition = 'none';
-                });
-
-                card.addEventListener('touchmove', e => {
-                    if (!currentCard) return;
-                    const x = e.touches[0].clientX;
-                    const diff = x - startX;
-                    const cat = card.dataset.category;
-                    
-                    // Colors
-                    card.classList.remove('pale-green', 'pale-red');
-                    if (diff > 40) (cat === "Compliant") ? card.classList.add('pale-green') : card.classList.add('pale-red');
-                    if (diff < -40) (cat === "Oppositional") ? card.classList.add('pale-green') : card.classList.add('pale-red');
-                    
-                    card.style.transform = `translateX(${diff}px) rotate(${diff/15}deg)`;
-                });
-
-                card.addEventListener('touchend', e => {
-                    if (!currentCard) return;
-                    const diff = e.changedTouches[0].clientX - startX;
-                    const cat = card.dataset.category;
-                    const isCorrect = (diff > 100 && cat === "Compliant") || (diff < -100 && cat === "Oppositional");
-
-                    if (isCorrect) {
-                        card.style.transition = 'all 0.4s ease-out';
-                        card.style.transform = `translateX(${diff > 0 ? 600 : -600}px) rotate(${diff/10}deg)`;
-                        card.style.opacity = '0';
-                        setTimeout(() => {
-                            card.remove();
-                            if (stack.children.length === 0) document.getElementById('feedback').innerHTML = "<span class='text-green-600'>All Correct!</span>";
-                        }, 300);
+                if (!isMobile) {
+                    // --- PC: ORIGINAL MATH ---
+                    size = isActive ? 120 : 100;
+                    let targetAngleDegrees;
+                    if (index <= activeIndex) {
+                        targetAngleDegrees = 135 + (index * 30);
                     } else {
-                        card.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                        card.style.transform = 'translateX(0) rotate(0)';
-                        card.classList.remove('pale-green', 'pale-red');
+                        const relIdx = (activeIndex === -1) ? index : index - (activeIndex + 1);
+                        targetAngleDegrees = 45 - (relIdx * 30);
                     }
-                    currentCard = null;
-                });
-                stack.appendChild(card);
+                    const rad = targetAngleDegrees * (Math.PI / 180);
+                    const orbitRadius = 300;
+                    x = centerX + orbitRadius * Math.cos(rad) - (size / 2);
+                    y = centerY - orbitRadius * Math.sin(rad) - (size / 2);
+                    el.style.transform = `translate(${x}px, ${y}px)`;
+                } else {
+                    // --- MOBILE: STRAIGHT LINES TOP (1-4) & BOTTOM (5-8) ---
+                    size = window.innerWidth * 0.15;
+                    const gap = window.innerWidth * 0.22;
+                    const startX = (window.innerWidth - (gap * 3)) / 2;
+                    const vDist = window.innerWidth * 0.60; // Distance from center circle
+
+                    if (index < 4) {
+                        x = startX + (index * gap) - (size / 2);
+                        y = centerY - vDist - (size / 2);
+                    } else {
+                        x = startX + ((index - 4) * gap) - (size / 2);
+                        y = centerY + vDist - (size / 2);
+                    }
+                    el.style.transform = `translate(${x}px, ${y}px)`;
+                }
+
+                el.style.width = `${size}px`;
+                el.style.height = `${size}px`;
+                el.classList.toggle('active', isActive);
             });
         }
 
-        // Run
-        initPC();
-        initMobile();
+        function handleClick(id) {
+            if (activeCircleId === id) {
+                activeCircleId = null;
+                document.getElementById('large-circle-title').textContent = introData.title;
+                document.getElementById('large-circle-text').textContent = introData.content;
+            } else {
+                activeCircleId = id;
+                const data = sectionsData.find(s => s.id === id);
+                document.getElementById('large-circle-title').textContent = (sectionsData.indexOf(data) + 1) + ". " + data.title.toUpperCase();
+                document.getElementById('large-circle-text').textContent = data.content;
+            }
+            render();
+        }
+
+        function init() {
+            sectionsData.forEach((section, index) => {
+                const div = document.createElement('div');
+                div.className = 'small-circle';
+                div.id = `circle-${section.id}`;
+                div.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full w-full">
+                        <span class="circle-number font-bold">${index + 1}</span>
+                        <div class="circle-title text-[10px] leading-tight mt-1 px-1">${section.title.replace(/ /g, '<br>')}</div>
+                    </div>
+                `;
+                div.onclick = () => handleClick(section.id);
+                document.getElementById('small-circles-wrapper').appendChild(div);
+            });
+            document.getElementById('large-circle-title').textContent = introData.title;
+            document.getElementById('large-circle-text').textContent = introData.content;
+            render();
+            window.addEventListener('resize', render);
+        }
+
+        init();
     </script>
 </body>
 </html>
