@@ -6,7 +6,6 @@
     <title>Compliant or Oppositional Drag & Drop Activity</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Brand Colours: #C6B4D9 (Light Purple), #513873 (Darkest Purple), #413659 (Dark Purple), #F2F2F2 (Off-White), #9C7F9D (Mid Purple/Taupe) */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         
         body {
@@ -15,17 +14,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 720px; /* INCREASED HEIGHT FOR SAFER DISPLAY */
-            width: 100%; /* Take full available width */
-            overflow-x: hidden; /* Prevent horizontal scroll */
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
             margin: 0;
             padding: 1rem;
         }
 
+        /* --- DESKTOP SPECIFIC STYLES --- */
         .container {
             width: 100%;
-            max-width: 800px; /* Limits max width for readability */
-            height: 100%;
+            max-width: 800px;
+            height: 720px;
             padding: 1rem;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             background-color: #FFF;
@@ -47,29 +47,27 @@
             cursor: grab;
             padding: 0.5rem 1rem;
             margin: 0.25rem;
-            background-color: #C6B4D9; /* Light Purple */
-            color: #413659; /* Dark Purple Text */
+            background-color: #C6B4D9;
+            color: #413659;
             border-radius: 6px;
             font-weight: 600;
             text-align: center;
             width: fit-content;
             max-width: 100%;
             transition: transform 0.1s, opacity 0.1s, background-color 0.2s;
-            touch-action: none; /* Crucial for mobile dragging */
+            touch-action: none;
         }
 
         .drop-target {
-            background-color: #413659; /* Dark Purple */
-            color: #F2F2F2; /* Off-White Text */
+            background-color: #413659;
+            color: #F2F2F2;
             padding: 0.75rem;
             border-radius: 8px;
             margin: 0.5rem;
-            /* FLEX-GROW is now necessary for initial layout, but the height is dynamic */
             flex-grow: 1; 
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* MIN-HEIGHT ensures targets are visible before dropping */
             min-height: 120px;
             transition: background-color 0.2s, border 0.2s;
             border: 3px solid transparent;
@@ -79,36 +77,59 @@
             font-weight: 700;
             font-size: 1.125rem;
             margin-bottom: 0.5rem;
-            color: #C6B4D9; /* Light Purple for title */
+            color: #C6B4D9;
         }
 
-        /* Drag over feedback */
-        .drag-over {
-            border: 3px dashed #C6B4D9;
-            background-color: #513873; /* Darker background when dragging over */
+        .drag-over { border: 3px dashed #C6B4D9; background-color: #513873; }
+        .correct { background-color: #a7f3d0 !important; border: 2px solid #059669 !important; pointer-events: none; }
+        .incorrect { background-color: #fecaca !important; border: 2px solid #ef4444 !important; }
+
+        /* --- MOBILE SWIPE STYLES --- */
+        #mobile-swipe-zone {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
         }
 
-        /* Correct/Incorrect Feedback */
-        .correct {
-            background-color: #a7f3d0; /* Tailwind green-200 equivalent */
-            border: 2px solid #059669; /* Tailwind green-600 equivalent */
-            cursor: default; /* Make correct items not look draggable */
-            pointer-events: none; /* Disable interaction with correct items */
-        }
-        .incorrect {
-            background-color: #fecaca; /* Tailwind red-200 equivalent */
-            border: 2px solid #ef4444; /* Tailwind red-600 equivalent */
+        .swipe-card {
+            position: absolute;
+            width: 80%;
+            max-width: 300px;
+            height: 200px;
+            background: #C6B4D9;
+            color: #413659;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            font-weight: 700;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            touch-action: none;
+            user-select: none;
+            transition: transform 0.3s ease, background-color 0.3s;
         }
 
-        /* Mobile specific styles (to ensure readability on small screen if canvas expands) */
-        @media (max-width: 600px) {
-            .container {
-                padding: 0.5rem;
-            }
-            .draggable-item {
-                font-size: 0.8rem;
-                padding: 0.4rem 0.8rem;
-            }
+        .swipe-instructions {
+            display: none;
+            width: 100%;
+            justify-content: space-between;
+            padding: 10px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #513873;
+        }
+
+        @media (max-width: 768px) {
+            #drop-targets, #drag-pool, #check-button { display: none !important; }
+            #mobile-swipe-zone, .swipe-instructions { display: flex !important; }
+            .container { height: auto; min-height: 600px; }
+            body { align-items: flex-start; }
         }
     </style>
 </head>
@@ -118,33 +139,30 @@
         <h2 class="text-xl font-bold text-[#513873] text-center mb-2">Compliant or Oppositional Responses</h2>
         
         <p class="text-left text-sm text-[#413659] instruction-box">
-            <strong>Drag and drop</strong> the signs based on how the person being controlled (the victim-survivor) is presenting in the workplace.<br>
-            <br>
-            <strong>Compliant:</strong> The victim-survivor acts obedient or eager to please as a way to avoid further punishment. (Survival mode)<br>
-            <strong>Oppositional:</strong> The victim-survivor acts moody, withdrawn, or hostile because the immense stress and trauma are leaking out. (Anger/trauma response directed elsewhere)
+            <strong>Mobile:</strong> Swipe <b>Left</b> for Oppositional, <b>Right</b> for Compliant.<br>
+            <strong>Desktop:</strong> Drag and drop the signs into the correct category.
         </p>
 
-        <!-- Drop Targets (REMOVED FIXED HEIGHT h-[140px] to allow targets to grow) -->
         <div id="drop-targets" class="flex justify-center gap-4 mb-3">
-            
             <div id="target-Compliant" class="drop-target w-1/2" data-category="Compliant">
                 <div class="drop-target-title">Compliant</div>
             </div>
-
             <div id="target-Oppositional" class="drop-target w-1/2" data-category="Oppositional">
                 <div class="drop-target-title">Oppositional</div>
             </div>
-
         </div>
 
-        <!-- Draggable Items Pool (Now has a fixed height to contain cards) -->
-        <div id="drag-pool" class="flex flex-wrap justify-center p-2 bg-[#F2F2F2] rounded-lg mb-4 h-[180px]">
-            <!-- Items generated by JS will go here -->
-        </div>
+        <div id="drag-pool" class="flex flex-wrap justify-center p-2 bg-[#F2F2F2] rounded-lg mb-4 h-[180px]"></div>
 
-        <!-- Result/Check Button (Adjusted margin for better spacing) -->
+        <div class="swipe-instructions">
+            <span class="text-red-700">← Oppositional</span>
+            <span class="text-green-700">Compliant →</span>
+        </div>
+        <div id="mobile-swipe-zone">
+            </div>
+
         <div class="text-center mt-2">
-            <button id="check-button" class="px-6 py-2 bg-[#513873] text-white font-semibold rounded-lg hover:bg-[#413659] transition duration-200">
+            <button id="check-button" class="px-6 py-2 bg-[#513873] text-white font-semibold rounded-lg hover:bg-[#413659]">
                 Check Answers
             </button>
             <div id="feedback" class="mt-2 font-semibold text-lg"></div>
@@ -152,262 +170,160 @@
     </div>
 
     <script>
-        // Data structure for the activity - Focused entirely on Compliant vs. Oppositional
         const data = [
-            // Compliant Scenarios (Eager to please, avoids conflict)
             { text: "Overly eager to please", category: "Compliant" },
             { text: "Quickly leaves when partner texts", category: "Compliant" },
             { text: "Gives in to demands easily", category: "Compliant" },
-            
-            // Oppositional Scenarios (Resistant, defiant, withdrawn)
             { text: "Moody or short-tempered", category: "Oppositional" },
             { text: "Seems difficult or negative with others", category: "Oppositional" }, 
             { text: "Avoids eye contact or withdraws", category: "Oppositional" },
         ];
 
-        let itemsCorrect = 0;
-        let itemsTotal = data.length;
-
         const dragPool = document.getElementById('drag-pool');
         const dropTargets = document.getElementById('drop-targets');
-        const checkButton = document.getElementById('check-button');
+        const mobileZone = document.getElementById('mobile-swipe-zone');
         const feedbackDiv = document.getElementById('feedback');
-
-        // --- Setup Functions ---
+        const checkButton = document.getElementById('check-button');
 
         function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+            return array.sort(() => Math.random() - 0.5);
         }
 
-        function createDraggableItem(itemData) {
-            const item = document.createElement('div');
-            item.className = 'draggable-item shadow-md';
-            item.textContent = itemData.text;
-            item.draggable = true;
-            item.dataset.category = itemData.category;
-            item.id = 'item-' + Math.random().toString(36).substring(2, 9);
-            
-            // Add drag events
-            item.addEventListener('dragstart', handleDragStart);
-            
-            // Add touch events for mobile support
-            item.addEventListener('touchstart', handleTouchStart);
-            item.addEventListener('touchmove', handleTouchMove);
-            item.addEventListener('touchend', handleTouchEnd);
+        // --- MOBILE SWIPE LOGIC ---
+        let currentCard = null;
+        let startX = 0;
 
-            return item;
-        }
-
-        function init() {
-            // Clear existing elements
-            dragPool.innerHTML = '';
-            
-            // Generate items and add to pool
-            shuffle(data).forEach(itemData => {
-                dragPool.appendChild(createDraggableItem(itemData));
+        function createSwipeCards() {
+            mobileZone.innerHTML = '';
+            shuffle([...data]).forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'swipe-card';
+                card.textContent = item.text;
+                card.dataset.category = item.category;
+                card.style.zIndex = data.length - index;
+                
+                card.addEventListener('touchstart', touchStart);
+                card.addEventListener('touchmove', touchMove);
+                card.addEventListener('touchend', touchEnd);
+                
+                mobileZone.appendChild(card);
             });
+        }
 
-            // Add drop events to targets
-            Array.from(dropTargets.children).forEach(target => {
-                target.addEventListener('dragover', handleDragOver);
-                target.addEventListener('dragleave', handleDragLeave);
-                target.addEventListener('drop', handleDrop);
-            });
+        function touchStart(e) {
+            startX = e.touches[0].clientX;
+            currentCard = e.currentTarget;
+            currentCard.style.transition = 'none';
+        }
+
+        function touchMove(e) {
+            if (!currentCard) return;
+            const currentX = e.touches[0].clientX;
+            const diff = currentX - startX;
+            const rotation = diff / 10;
             
-            // Setup check button
-            checkButton.removeEventListener('click', resetActivity);
-            checkButton.addEventListener('click', checkAnswers);
-            checkButton.textContent = "Check Answers";
-            feedbackDiv.textContent = "";
-            itemsCorrect = 0;
-        }
-        
-        // --- Drag & Drop Handlers ---
-
-        function handleDragStart(e) {
-            // Only allow dragging if the item is not already correct
-            if (e.target.classList.contains('correct')) {
-                e.preventDefault();
-                return;
-            }
-            e.dataTransfer.setData('text/plain', e.target.id);
-            e.target.classList.add('opacity-50');
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault(); 
-            e.target.closest('.drop-target').classList.add('drag-over');
-        }
-
-        function handleDragLeave(e) {
-            e.target.closest('.drop-target').classList.remove('drag-over');
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            const target = e.target.closest('.drop-target');
-            const itemId = e.dataTransfer.getData('text/plain');
-            const draggable = document.getElementById(itemId);
-
-            if (target && draggable) {
-                // Remove drag-over class
-                target.classList.remove('drag-over');
-                
-                // Append the draggable item to the drop target
-                target.appendChild(draggable);
-                
-                // Update position for visual consistency after drop
-                draggable.classList.remove('opacity-50');
-            }
-        }
-        
-        // --- Touch Handlers (Simple implementation for general movement) ---
-        
-        let currentDraggable = null;
-        let initialX, initialY, currentX, currentY;
-        
-        function handleTouchStart(e) {
-            currentDraggable = e.target.closest('.draggable-item');
-            if (!currentDraggable || currentDraggable.classList.contains('correct')) return;
-
-            e.preventDefault(); 
-            const touch = e.touches[0];
-            initialX = touch.clientX;
-            initialY = touch.clientY;
+            // Visual feedback as user drags
+            let bgColor = '#C6B4D9';
+            if (diff > 50) bgColor = '#a7f3d0'; // Green-ish
+            if (diff < -50) bgColor = '#fecaca'; // Red-ish
             
-            // Prepare for movement
-            currentDraggable.style.position = 'absolute';
-            currentDraggable.style.zIndex = 1000;
-            
-            // Set initial translate for smooth movement
-            const rect = currentDraggable.getBoundingClientRect();
-            currentDraggable.style.left = rect.left + 'px';
-            currentDraggable.style.top = rect.top + 'px';
+            currentCard.style.background = bgColor;
+            currentCard.style.transform = `translateX(${diff}px) rotate(${rotation}deg)`;
         }
 
-        function handleTouchMove(e) {
-            if (!currentDraggable) return;
+        function touchEnd(e) {
+            if (!currentCard) return;
+            const diff = e.changedTouches[0].clientX - startX;
+            const threshold = 100;
+            const category = currentCard.dataset.category;
 
-            e.preventDefault();
-            const touch = e.touches[0];
-            currentX = touch.clientX;
-            currentY = touch.clientY;
+            // Logic: Swipe Right = Compliant, Swipe Left = Oppositional
+            const swipedRight = diff > threshold;
+            const swipedLeft = diff < -threshold;
 
-            const deltaX = currentX - initialX;
-            const deltaY = currentY - initialY;
-            
-            // Move the element by adjusting its position based on the initial touch point
-            currentDraggable.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-        }
-        
-        function handleTouchEnd(e) {
-            if (!currentDraggable) return;
+            const isCorrect = (swipedRight && category === "Compliant") || (swipedLeft && category === "Oppositional");
+            const isWrongDir = (swipedRight && category === "Oppositional") || (swipedLeft && category === "Compliant");
 
-            // Check if element was dropped over a target
-            const target = document.elementFromPoint(currentX, currentY);
-            const dropTarget = target ? target.closest('.drop-target') : null;
-
-            if (dropTarget) {
-                dropTarget.appendChild(currentDraggable);
-            }
-            
-            // Clean up styles
-            currentDraggable.style.position = 'static'; 
-            currentDraggable.style.zIndex = 'auto';
-            currentDraggable.style.transform = 'none';
-            currentDraggable.style.left = 'auto';
-            currentDraggable.style.top = 'auto';
-            
-            currentDraggable = null;
-        }
-
-
-        // --- Check and Reset ---
-
-        function checkAnswers() {
-            itemsCorrect = 0;
-            let allDropped = true;
-            const incorrectItems = [];
-
-            // Loop through all drop targets
-            Array.from(dropTargets.children).forEach(target => {
-                const targetCategory = target.dataset.category;
-                
-                // Loop through children (draggable items) inside the target
-                Array.from(target.children).forEach(child => {
-                    // Check if the child is a draggable item, not the title
-                    if (child.classList.contains('draggable-item')) {
-                        const itemCategory = child.dataset.category;
-                        
-                        // Remove previous feedback classes (unless already correct)
-                        child.classList.remove('incorrect');
-
-                        if (itemCategory === targetCategory) {
-                            child.classList.add('correct');
-                            itemsCorrect++;
-                        } else {
-                            child.classList.add('incorrect');
-                            incorrectItems.push(child);
-                        }
+            if (isCorrect) {
+                // Success - Fly away
+                currentCard.style.transition = 'transform 0.5s ease-out';
+                currentCard.style.transform = `translateX(${diff > 0 ? 1000 : -1000}px) rotate(${diff / 5}deg)`;
+                setTimeout(() => {
+                    currentCard.remove();
+                    if (mobileZone.children.length === 0) {
+                        feedbackDiv.innerHTML = `<span class="text-green-600">All signs correctly identified!</span>`;
                     }
-                });
+                }, 300);
+            } else {
+                // Incorrect or partial swipe - Snap back
+                currentCard.style.transition = 'transform 0.3s ease, background-color 0.3s';
+                currentCard.style.transform = 'translateX(0) rotate(0)';
+                currentCard.style.background = isWrongDir ? '#ef4444' : '#C6B4D9'; // Flash red if wrong side
+                setTimeout(() => currentCard.style.background = '#C6B4D9', 500);
+            }
+            currentCard = null;
+        }
 
-                // Check if any item remains in the drag pool
-                if (dragPool.children.length > 0) {
-                    allDropped = false;
+        // --- DESKTOP LOGIC (MAINTAINED) ---
+        function initDesktop() {
+            dragPool.innerHTML = '';
+            shuffle([...data]).forEach(itemData => {
+                const item = document.createElement('div');
+                item.className = 'draggable-item shadow-md';
+                item.textContent = itemData.text;
+                item.draggable = true;
+                item.dataset.category = itemData.category;
+                item.id = 'item-' + Math.random().toString(36).substring(2, 9);
+                item.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', e.target.id);
+                    e.target.classList.add('opacity-50');
+                });
+                dragPool.appendChild(item);
+            });
+
+            Array.from(dropTargets.children).forEach(target => {
+                target.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    target.classList.add('drag-over');
+                });
+                target.addEventListener('dragleave', () => target.classList.remove('drag-over'));
+                target.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const itemId = e.dataTransfer.getData('text/plain');
+                    const draggable = document.getElementById(itemId);
+                    target.classList.remove('drag-over');
+                    target.appendChild(draggable);
+                    draggable.classList.remove('opacity-50');
+                });
+            });
+        }
+
+        checkButton.addEventListener('click', () => {
+            let correctCount = 0;
+            const items = document.querySelectorAll('.draggable-item');
+            items.forEach(item => {
+                const target = item.parentElement;
+                if (target.dataset.category === item.dataset.category) {
+                    item.classList.add('correct');
+                    correctCount++;
+                } else {
+                    item.classList.add('incorrect');
+                    setTimeout(() => {
+                        item.classList.remove('incorrect');
+                        dragPool.appendChild(item);
+                    }, 1000);
                 }
             });
-            
-            // Move incorrect items back to the pool
-            shuffle(incorrectItems).forEach(item => {
-                item.classList.remove('incorrect'); // Clean class for next try
-                dragPool.appendChild(item);
-                // Re-enable dragging for returned items
-                item.style.pointerEvents = 'auto'; 
-                item.style.cursor = 'grab';
-            });
-            
-            // Final Feedback
-            if (!allDropped && itemsCorrect < itemsTotal) {
-                 feedbackDiv.innerHTML = `<span class="text-red-600">Please drag all items to a category before checking.</span>`;
-                 // Re-enable check button in case user only dropped some items
-                 checkButton.removeEventListener('click', resetActivity);
-                 checkButton.addEventListener('click', checkAnswers);
-
-            } else if (itemsCorrect === itemsTotal) {
-                feedbackDiv.innerHTML = `<span class="text-green-600">Fantastic! All ${itemsTotal} signs correctly identified.</span>`;
-                checkButton.textContent = "Reset Activity";
-                checkButton.removeEventListener('click', checkAnswers);
-                checkButton.addEventListener('click', resetActivity);
-
-            } else {
-                const remaining = itemsTotal - itemsCorrect;
-                feedbackDiv.innerHTML = `<span class="text-yellow-600">You got ${itemsCorrect} out of ${itemsTotal} correct. ${remaining} sign${remaining === 1 ? ' remains' : 's remain'} to be placed.</span>`;
-                checkButton.textContent = "Check Again";
-                checkButton.removeEventListener('click', checkAnswers);
-                checkButton.addEventListener('click', checkAnswers); // Keep it set to checkAnswers for the next attempt
+            if (correctCount === data.length) {
+                feedbackDiv.innerHTML = `<span class="text-green-600">Well done! All correct.</span>`;
             }
-        }
-        
-        function resetActivity() {
-             // Reset all items to pool (used only when full mastery is achieved)
-             const items = document.querySelectorAll('.draggable-item');
-             items.forEach(item => {
-                 item.classList.remove('correct', 'incorrect');
-                 item.style.pointerEvents = 'auto'; // Re-enable interaction
-                 item.style.cursor = 'grab';
-                 dragPool.appendChild(item);
-             });
-             
-             init();
-        }
+        });
 
-        // Initialize the activity when the page loads
-        document.addEventListener('DOMContentLoaded', init);
+        // Init both
+        document.addEventListener('DOMContentLoaded', () => {
+            initDesktop();
+            createSwipeCards();
+        });
     </script>
 </body>
 </html>
