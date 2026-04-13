@@ -33,14 +33,15 @@
         }
 
         .instruction-box {
+            min-height: 100px;
             padding: 12px;
             border-radius: 6px;
             border: 1px solid #C6B4D9;
-            background-color: #F8F6FA;
+            background-color: #F2F2F2;
             margin-bottom: 20px;
         }
 
-        /* --- DESKTOP DRAG & DROP STYLES --- */
+        /* --- ORIGINAL DESKTOP DRAG & DROP STYLES --- */
         .draggable-item {
             cursor: grab;
             padding: 0.5rem 1rem;
@@ -50,37 +51,41 @@
             border-radius: 6px;
             font-weight: 600;
             text-align: center;
-            transition: transform 0.1s, background-color 0.2s;
+            width: fit-content;
+            max-width: 100%;
+            transition: transform 0.1s, opacity 0.1s, background-color 0.2s;
             touch-action: none;
         }
 
         .drop-target {
             background-color: #413659;
             color: #F2F2F2;
-            padding: 1rem;
+            padding: 0.75rem;
             border-radius: 8px;
-            min-height: 150px;
-            flex: 1;
+            margin: 0.5rem;
+            flex-grow: 1; 
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 120px;
+            transition: background-color 0.2s, border 0.2s;
             border: 3px solid transparent;
-            transition: all 0.2s;
         }
 
         .drop-target-title {
             font-weight: 700;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
             color: #C6B4D9;
-            margin-bottom: 10px;
         }
 
         .drag-over { border: 3px dashed #C6B4D9; background-color: #513873; }
-        .correct { background-color: #d1fae5 !important; border: 2px solid #059669 !important; pointer-events: none; }
-        .incorrect-flash { background-color: #fee2e2 !important; border: 2px solid #ef4444 !important; }
+        .correct { background-color: #a7f3d0 !important; border: 2px solid #059669 !important; pointer-events: none; }
+        .incorrect-flash { background-color: #fecaca !important; border: 2px solid #ef4444 !important; }
 
         /* --- MOBILE SWIPE STYLES --- */
         #mobile-swipe-interface {
-            display: none; /* Hidden on PC */
+            display: none; 
             flex-direction: column;
             align-items: center;
         }
@@ -90,7 +95,7 @@
             justify-content: space-between;
             width: 100%;
             padding: 10px 0;
-            color: #413659; /* Dark text */
+            color: #413659;
             font-weight: 800;
             font-size: 0.85rem;
             text-transform: uppercase;
@@ -122,14 +127,14 @@
             transition: transform 0.1s ease, background-color 0.3s;
         }
 
-        /* Pale Feedback Classes */
         .pale-green { background-color: #d1fae5 !important; }
         .pale-red { background-color: #fee2e2 !important; }
 
         /* --- RESPONSIVE LOGIC --- */
         @media (max-width: 768px) {
-            #desktop-interface { display: none; }
-            #mobile-swipe-interface { display: flex; }
+            #desktop-interface { display: none !important; }
+            #mobile-swipe-interface { display: flex !important; }
+            .container { padding: 1rem; }
         }
     </style>
 </head>
@@ -139,22 +144,28 @@
         <h2 class="text-xl font-bold text-[#513873] text-center mb-2">Compliant or Oppositional Responses</h2>
         
         <div class="instruction-box text-sm text-[#413659]">
+            <strong>Drag and drop</strong> the signs based on how the person is presenting.<br><br>
             <strong>Compliant:</strong> Obedient or eager to please to avoid punishment.<br>
             <strong>Oppositional:</strong> Moody, withdrawn, or hostile due to trauma stress.
         </div>
 
         <div id="desktop-interface">
-            <div id="drop-targets" class="flex gap-4 mb-6">
-                <div class="drop-target" data-category="Oppositional">
-                    <div class="drop-target-title">Oppositional</div>
-                </div>
-                <div class="drop-target" data-category="Compliant">
+            <div id="drop-targets" class="flex justify-center gap-4 mb-3">
+                <div id="target-Compliant" class="drop-target w-1/2" data-category="Compliant">
                     <div class="drop-target-title">Compliant</div>
                 </div>
+                <div id="target-Oppositional" class="drop-target w-1/2" data-category="Oppositional">
+                    <div class="drop-target-title">Oppositional</div>
+                </div>
             </div>
-            <div id="drag-pool" class="flex flex-wrap justify-center p-4 bg-[#F2F2F2] rounded-lg min-height-[150px]"></div>
-            <div class="text-center mt-6">
-                <button id="check-btn" class="px-8 py-2 bg-[#513873] text-white font-bold rounded-lg hover:bg-[#413659]">Check Answers</button>
+            
+            <div id="drag-pool" class="flex flex-wrap justify-center p-2 bg-[#F2F2F2] rounded-lg mb-4 min-height-[180px]">
+                </div>
+
+            <div class="text-center mt-2">
+                <button id="check-btn" class="px-6 py-2 bg-[#513873] text-white font-semibold rounded-lg hover:bg-[#413659]">
+                    Check Answers
+                </button>
             </div>
         </div>
 
@@ -164,7 +175,7 @@
                 <span>COMPLIANT →</span>
             </div>
             <div id="card-stack"></div>
-            <p class="text-xs text-center text-gray-500 italic">Swipe the card to the correct category</p>
+            <p class="text-xs text-center text-gray-500 italic mt-2">Swipe left or right to categorize</p>
         </div>
 
         <div id="feedback" class="mt-4 text-center font-bold text-lg"></div>
@@ -188,12 +199,17 @@
             pool.innerHTML = '';
             shuffle([...data]).forEach(item => {
                 const el = document.createElement('div');
-                el.className = 'draggable-item shadow-sm';
+                el.className = 'draggable-item shadow-md';
                 el.textContent = item.text;
                 el.draggable = true;
                 el.dataset.category = item.category;
                 el.id = 'id-' + Math.random().toString(36).substr(2, 5);
-                el.addEventListener('dragstart', e => e.dataTransfer.setData('text', e.target.id));
+                
+                el.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('text', e.target.id);
+                    e.target.classList.add('opacity-50');
+                });
+                el.addEventListener('dragend', e => e.target.classList.remove('opacity-50'));
                 pool.appendChild(el);
             });
 
@@ -203,15 +219,19 @@
                 target.addEventListener('drop', e => {
                     e.preventDefault();
                     const id = e.dataTransfer.getData('text');
+                    const draggable = document.getElementById(id);
                     target.classList.remove('drag-over');
-                    target.appendChild(document.getElementById(id));
+                    if (draggable) target.appendChild(draggable);
                 });
             });
         }
 
         document.getElementById('check-btn').addEventListener('click', function() {
             let correct = 0;
-            document.querySelectorAll('.draggable-item').forEach(item => {
+            const feedbackDiv = document.getElementById('feedback');
+            const draggables = document.querySelectorAll('.draggable-item');
+            
+            draggables.forEach(item => {
                 const parentCat = item.parentElement.dataset.category;
                 if (parentCat === item.dataset.category) {
                     item.classList.add('correct');
@@ -224,7 +244,12 @@
                     }, 800);
                 }
             });
-            if (correct === data.length) document.getElementById('feedback').innerHTML = "<span class='text-green-600'>Perfect! All correct.</span>";
+
+            if (correct === data.length) {
+                feedbackDiv.innerHTML = "<span class='text-green-600'>Fantastic! All signs correctly identified.</span>";
+            } else {
+                feedbackDiv.innerHTML = `<span class='text-yellow-600'>Placed ${correct} of ${data.length} correctly.</span>`;
+            }
         });
 
         // --- MOBILE SWIPE LOGIC ---
@@ -253,7 +278,6 @@
                     const diff = x - startX;
                     const cat = card.dataset.category;
                     
-                    // Colors
                     card.classList.remove('pale-green', 'pale-red');
                     if (diff > 40) (cat === "Compliant") ? card.classList.add('pale-green') : card.classList.add('pale-red');
                     if (diff < -40) (cat === "Oppositional") ? card.classList.add('pale-green') : card.classList.add('pale-red');
@@ -286,7 +310,6 @@
             });
         }
 
-        // Run
         initPC();
         initMobile();
     </script>
