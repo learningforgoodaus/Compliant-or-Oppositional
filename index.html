@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Compliant or Oppositional Drag & Drop Activity</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         
@@ -141,7 +136,12 @@
         <h2 class="text-xl font-bold text-[#513873] text-center mb-2">Compliant or Oppositional Responses</h2>
         
         <div class="instruction-box text-sm text-[#413659]">
-            <strong>Sort the characteristics below into Oppositional or Compliant behaviours</strong> 
+            <p class="text-center w-full mb-2">
+                <strong>Sort the characteristics below into Oppositional or Compliant behaviours</strong>
+            </p>
+            <p><strong>Compliant:</strong> Acts obedient or eager to please as a way to avoid further punishment.</p>
+            <p><strong>Oppositional:</strong> Acts moody, withdrawn, or hostile because the immense stress and trauma are leaking out.</p>
+        </div>
 
         <div id="desktop-interaction-zone">
             <div id="drop-targets" class="flex justify-center gap-4 mb-3">
@@ -264,11 +264,10 @@
             const rotation = diff / 10;
             const category = currentCard.dataset.category;
 
-            // Feedback Highlighting
             currentCard.classList.remove('swipe-correct', 'swipe-incorrect');
-            if (diff > 50) { // Moving Right (Compliant)
+            if (diff > 50) { 
                 category === "Compliant" ? currentCard.classList.add('swipe-correct') : currentCard.classList.add('swipe-incorrect');
-            } else if (diff < -50) { // Moving Left (Oppositional)
+            } else if (diff < -50) { 
                 category === "Oppositional" ? currentCard.classList.add('swipe-correct') : currentCard.classList.add('swipe-incorrect');
             }
 
@@ -281,11 +280,9 @@
             const category = currentCard.dataset.category;
             const threshold = 120;
 
-            // Logic: Correct Side?
             const isCorrectSide = (diff > threshold && category === "Compliant") || (diff < -threshold && category === "Oppositional");
 
             if (isCorrectSide) {
-                // Fly off screen
                 currentCard.style.transition = 'transform 0.5s ease-out, opacity 0.5s';
                 currentCard.style.transform = `translateX(${diff * 5}px) rotate(${diff / 2}deg)`;
                 currentCard.style.opacity = '0';
@@ -296,7 +293,6 @@
                     }
                 }, 500);
             } else {
-                // Snap back (Wrong side or not far enough)
                 currentCard.style.transition = 'transform 0.3s ease-out, background-color 0.3s';
                 currentCard.style.transform = 'translateX(0) rotate(0)';
                 currentCard.classList.remove('swipe-correct', 'swipe-incorrect');
@@ -304,7 +300,6 @@
             currentCard = null;
         }
 
-        // Start both
         initPC();
         initMobile();
     </script>
